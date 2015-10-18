@@ -1,0 +1,37 @@
+metadata:
+    name: spark
+    format: "Lava-Test-Shell Test Definition 1.0"
+    description: "Spark v1.4 package compilation using Apache Maven.
+                  More Details - http://spark.apache.org"
+    maintainer:
+        - naresh.bhat@linaro.org
+    os:
+        - ubuntu
+    devices:
+        - mustang
+    environment:
+        - lava-test-shell
+install:
+    deps:
+        - build-essential
+        - maven
+        - git
+        - git-core
+run:
+   steps:
+        - 'mkdir -p /usr/lib/jvm/jdk/'
+        - 'cd /usr/lib/jvm/jdk/'
+        - 'wget http://openjdk.linaro.org/releases/jdk8-server-release-1508.tar.xz'
+        - 'tar -xvf jdk8-server-release-1508.tar.xz'
+        - 'cd jdk8-server-release-1508/jre/lib/security'
+        - 'mv cacerts cacerts-original'
+        - 'ln -svf /etc/ssl/certs/java/cacerts .'
+        - 'export JAVA_HOME=/usr/lib/jvm/jdk/jdk8-server-release-1508'
+        - 'export PATH=/usr/lib/jvm/jdk/jdk8-server-release-1508/bin:$PATH'
+        - 'cd'
+        - 'wget http://people.linaro.org/~naresh.bhat/m2/spark-1.4/m2.tar.gz'
+        - 'tar -xvf m2.tar.gz'
+        - 'git clone git://github.com/apache/spark.git'
+        - 'cd spark'
+        - 'git checkout -b branch-1.4 origin/branch-1.4'
+        - 'mvn -o -Pyarn -Phadoop-2.4 -Dhadoop.version=2.4.0 -DskipTests clean package'
