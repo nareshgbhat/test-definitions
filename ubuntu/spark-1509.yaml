@@ -1,0 +1,42 @@
+metadata:
+    name: spark
+    format: "Lava-Test-Shell Test Definition 1.0"
+    description: "Spark git repository compilation using Apache Maven.
+                  More Details - http://spark.apache.org"
+    maintainer:
+        - naresh.bhat@linaro.org
+    os:
+        - ubuntu
+    devices:
+        - mustang
+    environment:
+        - lava-test-shell
+install:
+    deps:
+        - build-essential
+        - maven
+        - git
+        - git-core
+run:
+   steps:
+        - 'mkdir -p /usr/lib/jvm/jdk/'
+        - 'cd /usr/lib/jvm/jdk/'
+        - 'wget http://openjdk.linaro.org/releases/jdk8u-server-release-1509.tar.xz'
+        - 'tar -xvf jdk8u-server-release-1509.tar.xz'
+        - 'cd jdk8u-server-release-1509/jre/lib/security'
+        - 'mv cacerts cacerts-original'
+        - 'ln -svf /etc/ssl/certs/java/cacerts .'
+        - 'cd ../../../jre/lib/aarch64/'
+        - 'rm jvm.cfg'
+        - 'wget http://people.linaro.org/~naresh.bhat/jdk1509-jvm-cfg-file/jvm.cfg'
+        - 'cd'
+        - 'export JAVA_HOME=/usr/lib/jvm/jdk/jdk8u-server-release-1509'
+        - 'export PATH=/usr/lib/jvm/jdk/jdk8u-server-release-1509/bin:$PATH'
+        - 'wget http://people.linaro.org/~naresh.bhat/m2/master-jdkV1509/m2.tar.gz'
+        - 'tar -xvf m2.tar.gz'
+        - 'wget http://www.us.apache.org/dist/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz'
+        - 'tar -xvf apache-maven-3.3.3-bin.tar.gz'
+        - 'export PATH=/root/apache-maven-3.3.3/bin:$PATH'
+        - 'git clone git://github.com/apache/spark.git'
+        - 'cd spark'
+        - 'mvn -o -DskipTests clean package'
