@@ -1,0 +1,59 @@
+metadata:
+    name: spark
+    format: "Lava-Test-Shell Test Definition 1.0"
+    description: "Spark git repository compilation using Apache Maven.
+                  More Details - http://spark.apache.org"
+    maintainer:
+        - naresh.bhat@linaro.org
+    os:
+        - ubuntu
+    devices:
+        - mustang
+    environment:
+        - lava-test-shell
+install:
+    deps:
+        - build-essential
+        - maven
+        - git
+        - git-core
+params:
+   JDK_URL: "default-jdk"
+   JDK_PATH: "/usr/lib/jvm/jdk/"
+   JAVA_HOME: "/usr/lib/jvm/jdk/jdk-server-release"
+   JAVA_BIN: "/usr/lib/jvm/jdk/jdk-server-release/bin"
+   M2: "http://people.linaro.org/~naresh.bhat/m2/master/m2.tar.gz"
+   JVM_CFG: "http://people.linaro.org/~naresh.bhat/jdk1509-jvm-cfg-file/jvm.cfg"
+   MAVEN_URL: "http://www.us.apache.org/dist/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz"
+   MAVEN_PATH: "/root/apache-maven-3.3.3/bin"
+run:
+   steps:
+        - 'mkdir -p $JDK_PATH'
+        - 'cd $JDK_PATH'
+        - 'wget $JDK_URL -O jdk-server-release.tar.xz'
+        - 'tar -xvf jdk-server-release.tar.xz'
+        - 'mv jdk8* jdk-server-release'
+        - 'cd jdk-server-release/jre/lib/security'
+        - 'rm cacerts'
+        - 'ln -svf /etc/ssl/certs/java/cacerts .'
+        - 'cd ../../../jre/lib/aarch64/'
+        - 'rm jvm.cfg'
+        - 'wget $JVM_CFG -O jvm.cfg'
+        - 'cd'
+        - 'export JAVA_HOME=$JAVA_HOME'
+        - 'export PATH=$JAVA_BIN:$PATH'
+        - 'wget $M2 -O m2.tar.gz'
+        - 'tar -xvf m2.tar.gz'
+        - 'wget $MAVEN_URL -O apache-maven-3.3.3-bin.tar.gz'
+        - 'tar -xvf apache-maven-3.3.3-bin.tar.gz'
+        - 'export PATH=$MAVEN_PATH:$PATH'
+        - 'git clone git://github.com/apache/spark.git'
+        - 'cd spark'
+        - 'mvn -o -DskipTests clean package'
+parse:
+    pattern: '(?P<test_case_id>\[INFO\][ a-zA-Z]+) \.+ (?P<result>SUCCESS|FAILURE|SKIPPED)'
+    fixupdict:
+        SUCCESS: pass
+        FAILure: fail
+        SKIPPED: skip
+
